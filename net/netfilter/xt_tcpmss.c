@@ -21,6 +21,9 @@ MODULE_DESCRIPTION("Xtables: TCP MSS match");
 MODULE_ALIAS("ipt_tcpmss");
 MODULE_ALIAS("ip6t_tcpmss");
 
+/* tcp.doff is 4 bits, so max header is 15 * 4 = 60 bytes */
+#define TCPMSS_OPTS_BUFSIZE	(15 * 4 - sizeof(struct tcphdr))
+
 static int tcpmss_mt_check(const struct xt_mtchk_param *par)
 {
 	const struct xt_tcpmss_match_info *info = par->matchinfo;
@@ -40,9 +43,8 @@ tcpmss_mt(const struct sk_buff *skb, struct xt_action_param *par)
 	const struct xt_tcpmss_match_info *info = par->matchinfo;
 	const struct tcphdr *th;
 	struct tcphdr _tcph;
-	/* tcp.doff is only 4 bits, ie. max 15 * 4 bytes */
 	const u_int8_t *op;
-	u8 _opt[15 * 4 - sizeof(_tcph)];
+	u8 _opt[TCPMSS_OPTS_BUFSIZE];
 	unsigned int i, optlen;
 
 	/* this is fine for IPv6 as xt_tcpmss enforces -p tcp */
