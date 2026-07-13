@@ -189,15 +189,17 @@ static int kvm_vfio_file_del(struct kvm_device *dev, unsigned int fd)
 {
 	struct kvm_vfio *kv = dev->private;
 	struct kvm_vfio_file *kvf;
+	struct file *file;
 	CLASS(fd, f)(fd);
+
+	guard(mutex)(&kv->lock);
 
 	if (fd_empty(f))
 		return -EBADF;
 
-	guard(mutex)(&kv->lock);
-
+	file = fd_file(f);
 	list_for_each_entry(kvf, &kv->file_list, node) {
-		if (kvf->file == fd_file(f)) {
+		if (kvf->file == file) {
 			kvm_vfio_file_free(dev, kvf);
 			kvm_vfio_update_coherency(dev);
 			return 0;
@@ -214,18 +216,21 @@ static int kvm_vfio_file_set_spapr_tce(struct kvm_device *dev,
 	struct kvm_vfio_spapr_tce param;
 	struct kvm_vfio *kv = dev->private;
 	struct kvm_vfio_file *kvf;
+	struct file *file;
 
 	if (copy_from_user(&param, arg, sizeof(struct kvm_vfio_spapr_tce)))
 		return -EFAULT;
 
 	CLASS(fd, f)(param.groupfd);
-	if (fd_empty(f))
-		return -EBADF;
 
 	guard(mutex)(&kv->lock);
 
+	if (fd_empty(f))
+		return -EBADF;
+
+	file = fd_file(f);
 	list_for_each_entry(kvf, &kv->file_list, node) {
-		if (kvf->file != fd_file(f))
+		if (kvf->file != file)
 			continue;
 
 		if (!kvf->iommu_group) {
