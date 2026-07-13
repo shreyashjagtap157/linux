@@ -21,6 +21,19 @@ MODULE_DESCRIPTION("Xtables: TCP MSS match");
 MODULE_ALIAS("ipt_tcpmss");
 MODULE_ALIAS("ip6t_tcpmss");
 
+static int tcpmss_mt_check(const struct xt_mtchk_param *par)
+{
+	const struct xt_tcpmss_match_info *info = par->matchinfo;
+
+	if (info->mss_min > info->mss_max) {
+		pr_info("xt_tcpmss: mss_min (%u) > mss_max (%u)\n",
+			info->mss_min, info->mss_max);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static bool
 tcpmss_mt(const struct sk_buff *skb, struct xt_action_param *par)
 {
@@ -82,6 +95,7 @@ static struct xt_match tcpmss_mt_reg[] __read_mostly = {
 	{
 		.name		= "tcpmss",
 		.family		= NFPROTO_IPV4,
+		.checkentry	= tcpmss_mt_check,
 		.match		= tcpmss_mt,
 		.matchsize	= sizeof(struct xt_tcpmss_match_info),
 		.proto		= IPPROTO_TCP,
@@ -90,6 +104,7 @@ static struct xt_match tcpmss_mt_reg[] __read_mostly = {
 	{
 		.name		= "tcpmss",
 		.family		= NFPROTO_IPV6,
+		.checkentry	= tcpmss_mt_check,
 		.match		= tcpmss_mt,
 		.matchsize	= sizeof(struct xt_tcpmss_match_info),
 		.proto		= IPPROTO_TCP,
