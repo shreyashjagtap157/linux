@@ -197,7 +197,7 @@ static int new_vendor(const char *name, u_int16_t vendorid)
 	v = my_malloc(sizeof(struct vendor) + strlen(name));
 	if (!v)
 		return -1;
-	strcpy(v->name, name);
+	memcpy(v->name, name, strlen(name) + 1);
 	v->vendorid = vendorid;
 	v->next = vendors[h];
 	vendors[h] = v;
@@ -217,7 +217,7 @@ static int new_product(const char *name, u_int16_t vendorid,
 	p = my_malloc(sizeof(struct product) + strlen(name));
 	if (!p)
 		return -1;
-	strcpy(p->name, name);
+	memcpy(p->name, name, strlen(name) + 1);
 	p->vendorid = vendorid;
 	p->productid = productid;
 	p->next = products[h];
@@ -237,7 +237,7 @@ static int new_class(const char *name, u_int8_t classid)
 	c = my_malloc(sizeof(struct class) + strlen(name));
 	if (!c)
 		return -1;
-	strcpy(c->name, name);
+	memcpy(c->name, name, strlen(name) + 1);
 	c->classid = classid;
 	c->next = classes[h];
 	classes[h] = c;
@@ -256,7 +256,7 @@ static int new_subclass(const char *name, u_int8_t classid, u_int8_t subclassid)
 	s = my_malloc(sizeof(struct subclass) + strlen(name));
 	if (!s)
 		return -1;
-	strcpy(s->name, name);
+	memcpy(s->name, name, strlen(name) + 1);
 	s->classid = classid;
 	s->subclassid = subclassid;
 	s->next = subclasses[h];
@@ -279,7 +279,7 @@ static int new_protocol(const char *name, u_int8_t classid, u_int8_t subclassid,
 	p = my_malloc(sizeof(struct protocol) + strlen(name));
 	if (!p)
 		return -1;
-	strcpy(p->name, name);
+	memcpy(p->name, name, strlen(name) + 1);
 	p->classid = classid;
 	p->subclassid = subclassid;
 	p->protocolid = protocolid;
