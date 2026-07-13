@@ -166,6 +166,15 @@ signing_key.priv
 signing_key.x509
 x509.genkey
 
+#
+# Leavings from test signing (SGX selftests)
+#
+*.pem
+
+# We don't want to ignore SGX-specific PEM files
+# Actually, we DO want to ignore them — test keys should be generated at build time
+# The SGX test_sign_key.pem is in tools/testing/selftests/sgx/sign_key.pem
+
 # Kconfig presets
 /all.config
 /alldef.config
