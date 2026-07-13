@@ -65,7 +65,9 @@ xt_rateest_mt(const struct sk_buff *skb, struct xt_action_param *par)
 		break;
 	}
 
-	ret ^= info->flags & XT_RATEEST_MATCH_INVERT ? true : false;
+	if (info->flags & XT_RATEEST_MATCH_INVERT)
+		ret = !ret;
+
 	return ret;
 }
 
